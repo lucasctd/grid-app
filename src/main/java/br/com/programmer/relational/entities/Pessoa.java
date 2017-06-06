@@ -9,7 +9,7 @@ import java.io.Serializable;
  * Created by lucas on 6/3/2017.
  */
 @Entity
-public class Pessoa implements Serializable, IEntity{
+public class Pessoa implements IEntity{
 
     private static final long serialVersionUID = -4914210871035056504L;
 
