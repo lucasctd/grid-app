@@ -1,7 +1,7 @@
 package br.com.programmer;
 
 import br.com.programmer.grid.GridProvider;
-import br.com.programmer.relational.repository.PessoaRepository;
+import br.com.programmer.relational.repository.EntityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -18,7 +18,7 @@ public class App implements CommandLineRunner{
     private GridProvider grid;
 
     @Autowired
-    private PessoaRepository pessoaRepository;
+    private EntityRepository entityRepository;
 
     public static void main(String[] args) {
         SpringApplication.run(App.class, args);
@@ -27,7 +27,7 @@ public class App implements CommandLineRunner{
     @Override
     public void run(String... args) throws IllegalAccessException {
         System.out.println("************** INICIANDO APP ******************");
-        grid.setList(pessoaRepository.findAll());
+        grid.setList(entityRepository.findAll());
         grid.setBlockSize(50);
         grid.run();
     }

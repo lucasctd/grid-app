@@ -1,5 +1,7 @@
 package br.com.programmer.relational.entities;
 
+import br.com.programmer.relational.entities.contract.IEntity;
+
 import javax.persistence.*;
 import java.io.Serializable;
 
@@ -7,7 +9,7 @@ import java.io.Serializable;
  * Created by lucas on 6/3/2017.
  */
 @Entity
-public class Pessoa implements Serializable{
+public class Pessoa implements Serializable, IEntity{
 
     private static final long serialVersionUID = -4914210871035056504L;
 
@@ -21,6 +23,7 @@ public class Pessoa implements Serializable{
     @Column(name = "telefone")
     private String telefone;
 
+    @Override
     public Integer getId() {
         return id;
     }

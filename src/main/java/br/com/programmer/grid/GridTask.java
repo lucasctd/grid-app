@@ -1,36 +1,52 @@
 package br.com.programmer.grid;
 
-import br.com.programmer.norelational.repository.PessoaNRepository;
-import br.com.programmer.relational.entities.Pessoa;
+import br.com.programmer.norelational.repository.EntityNRepository;
+import br.com.programmer.relational.entities.contract.IEntity;
 import org.jppf.node.protocol.AbstractTask;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * Created by lucas on 6/4/2017.
  */
 @Service
 @Scope(value = "prototype")
-public class GridTask <T> extends AbstractTask<String> implements TaskProvider, PessoaNRepository {
+public class GridTask <T> extends AbstractTask<String> implements TaskProvider, EntityNRepository {
 
     private static final long serialVersionUID = 8552345624416910556L;
 
-    private static final transient String KEY = "pessoa";
+    private static String KEY;
 
-    private static final transient String HOST = "192.168.0.9";
+    private static String HOST;
 
-    private static final transient int PORT = 24000;
+    private static int PORT = 24000;
 
     private List<T> list;
 
-    public GridTask() {
+    private Properties properties;
+
+    public GridTask() throws IOException {
         System.out.println("************* CREATING TASK ********************");
+        loadEnvVars();;
+    }
+
+    private void loadEnvVars() throws IOException {
+        final String propFileName = "redis.properties";
+        properties = new Properties();
+        InputStream is = getClass().getClassLoader().getResourceAsStream(propFileName);
+        properties.load(is);
+        KEY = properties.getProperty("key", "entity");
+        HOST = properties.getProperty("host", "127.0.0.1");
+        PORT = Integer.parseInt(properties.getProperty("port", "6379"));
     }
 
     @Override
@@ -44,7 +60,7 @@ public class GridTask <T> extends AbstractTask<String> implements TaskProvider, 
         try {
             System.out.println("************* TASK - "+ this.getId() +" - MIGRANDO PARA O BANCO NAO RELACIONAL (REDIS) ********************");
             for (counter = 0; counter < list.size(); counter++){
-                Pessoa p = (Pessoa) list.get(counter);
+                IEntity p = (IEntity) list.get(counter);
                 this.save(KEY, p.getId().toString(), p);
             }
             System.out.println("************* MIGRAÇÃO FINALIZADA ********************");
@@ -55,13 +71,13 @@ public class GridTask <T> extends AbstractTask<String> implements TaskProvider, 
         }
     }
 
-    public void save(String key, String id, Object object) throws IllegalAccessException {
+    public void save(String key, String id, IEntity entity) throws IllegalAccessException {
         Jedis jedis = new Jedis(HOST, PORT);
         Map<String, String> obj = new HashMap<>();
-        Field[] fields = Pessoa.class.getDeclaredFields();
+        Field[] fields = entity.getClass().getDeclaredFields();
         for(int x = 1; x < fields.length; x++){
             fields[x].setAccessible(true);
-            obj.put(fields[x].getName(), fields[x].get(object).toString());
+            obj.put(fields[x].getName(), fields[x].get(entity).toString());
         }
         jedis.hmset(key + ":" + id, obj);
     }
