@@ -24,11 +24,11 @@ public class GridTask <T> extends AbstractTask<String> implements TaskProvider, 
 
     private static final long serialVersionUID = 8552345624416910556L;
 
-    private static String KEY;
+    private String key;
 
-    private static String HOST;
+    private String host;
 
-    private static int PORT = 24000;
+    private int port;
 
     private List<T> list;
 
@@ -44,9 +44,9 @@ public class GridTask <T> extends AbstractTask<String> implements TaskProvider, 
         properties = new Properties();
         InputStream is = getClass().getClassLoader().getResourceAsStream(propFileName);
         properties.load(is);
-        KEY = properties.getProperty("key", "entity");
-        HOST = properties.getProperty("host", "127.0.0.1");
-        PORT = Integer.parseInt(properties.getProperty("port", "6379"));
+        key = properties.getProperty("key", "entity");
+        host = properties.getProperty("host", "127.0.0.1");
+        port = Integer.parseInt(properties.getProperty("port", "6379"));
     }
 
     @Override
@@ -61,7 +61,7 @@ public class GridTask <T> extends AbstractTask<String> implements TaskProvider, 
             System.out.println("************* TASK - "+ this.getId() +" - MIGRANDO PARA O BANCO NAO RELACIONAL (REDIS) ********************");
             for (counter = 0; counter < list.size(); counter++){
                 IEntity p = (IEntity) list.get(counter);
-                this.save(KEY, p.getId().toString(), p);
+                this.save(key, p.getId().toString(), p);
             }
             System.out.println("************* MIGRAÇÃO FINALIZADA ********************");
             setResult("Dados migrados com sucesso. Foram migradas "+counter+ " tuplas do banco MySQL para o Redis.");
@@ -72,7 +72,7 @@ public class GridTask <T> extends AbstractTask<String> implements TaskProvider, 
     }
 
     public void save(String key, String id, IEntity entity) throws IllegalAccessException {
-        Jedis jedis = new Jedis(HOST, PORT);
+        Jedis jedis = new Jedis(host, port);
         Map<String, String> obj = new HashMap<>();
         Field[] fields = entity.getClass().getDeclaredFields();
         for(int x = 1; x < fields.length; x++){

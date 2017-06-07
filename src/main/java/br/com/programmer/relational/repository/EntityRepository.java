@@ -9,6 +9,6 @@ import java.io.Serializable;
 /**
  * Created by lucas on 6/3/2017.
  */
-public interface EntityRepository extends CrudRepository<IEntity, Integer>{
+public interface EntityRepository extends CrudRepository<Pessoa, Integer>{
 
 }
