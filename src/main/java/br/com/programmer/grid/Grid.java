@@ -72,7 +72,6 @@ public class Grid <T> implements GridProvider{
             task.setId("ID: " + jobName + " - " + new Random().nextInt(100));
             TaskProvider t = ((TaskProvider) task);
             t.setList(new ArrayList<T>(l.subList(currentBlock * blockSize, ((currentBlock + 1) * blockSize) - 1)));
-            job.add(t);
         }
         return job;
     }
